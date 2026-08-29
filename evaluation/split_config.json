@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "benchmark_version": "v1",
+  "strategy": "stratified_question_level",
+  "seed": 42,
+  "question_id_prefix": "benchmark-v1-q",
+  "stratify_by": [
+    "kind",
+    "answer_category",
+    "has_reference"
+  ],
+  "source_files": {
+    "questions": {
+      "path": "data/benchmark/questions.json",
+      "expected_sha256": "0c8f92cbe07ecd1813e64fd4d07dcfce6712b66e16795be9611abd4d01245f10"
+    },
+    "answers": {
+      "path": "data/benchmark/answers.json",
+      "expected_sha256": "441782f9dd91c64a5c3e30da29a3c3e45ef8590627cd6e7ed481761240525faa"
+    }
+  },
+  "outputs": {
+    "development": "evaluation/datasets/development.jsonl",
+    "holdout": "evaluation/datasets/holdout.jsonl",
+    "manifest": "evaluation/split_manifest.json"
+  },
+  "split_sizes": {
+    "development": 70,
+    "holdout": 30
+  },
+  "strata": [
+    {
+      "kind": "number",
+      "answer_category": "value",
+      "has_reference": true,
+      "total": 17,
+      "development": 12,
+      "holdout": 5
+    },
+    {
+      "kind": "number",
+      "answer_category": "na",
+      "has_reference": true,
+      "total": 1,
+      "development": 1,
+      "holdout": 0
+    },
+    {
+      "kind": "number",
+      "answer_category": "na",
+      "has_reference": false,
+      "total": 40,
+      "development": 28,
+      "holdout": 12
+    },
+    {
+      "kind": "boolean",
+      "answer_category": "true",
+      "has_reference": true,
+      "total": 15,
+      "development": 10,
+      "holdout": 5
+    },
+    {
+      "kind": "boolean",
+      "answer_category": "false",
+      "has_reference": true,
+      "total": 2,
+      "development": 1,
+      "holdout": 1
+    },
+    {
+      "kind": "boolean",
+      "answer_category": "false",
+      "has_reference": false,
+      "total": 7,
+      "development": 5,
+      "holdout": 2
+    },
+    {
+      "kind": "name",
+      "answer_category": "value",
+      "has_reference": true,
+      "total": 8,
+      "development": 6,
+      "holdout": 2
+    },
+    {
+      "kind": "name",
+      "answer_category": "na",
+      "has_reference": false,
+      "total": 1,
+      "development": 1,
+      "holdout": 0
+    },
+    {
+      "kind": "names",
+      "answer_category": "value",
+      "has_reference": true,
+      "total": 6,
+      "development": 4,
+      "holdout": 2
+    },
+    {
+      "kind": "names",
+      "answer_category": "na",
+      "has_reference": false,
+      "total": 3,
+      "development": 2,
+      "holdout": 1
+    }
+  ]
+}
