@@ -12,6 +12,15 @@ Each document entry records the lowercase SHA-1 document ID, exact filename,
 SHA-1 of the original PDF bytes, and byte size. Entries are sorted by
 `document_id`. The raw PDFs are Git-ignored; this reference is not.
 
+## Source
+
+The PDF bytes are not stored in this repository. They are the original
+Round 2 annual reports from the
+[Enterprise RAG Challenge](https://github.com/trustbit/enterprise-rag-challenge)
+repository, under `round2/pdfs/`. Obtain those files separately and place
+them in `documents/` using the exact filenames in this reference. This file
+inventories that corpus; it does not redistribute it.
+
 ## Corpus fingerprint
 
 `corpus_fingerprint` is the lowercase hexadecimal SHA-256 digest computed as follows:
