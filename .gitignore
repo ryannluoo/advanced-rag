@@ -3,8 +3,12 @@
 
 __pycache__/
 *.py[cod]
+*.egg-info/
 .pytest_cache/
+.cache/
 
-data/raw/documents/
+data/raw/reports/
 data/processed/
 data/indexes/
+data/models/
+PARSING_REVIEW.md

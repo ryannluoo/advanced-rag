@@ -1,7 +1,7 @@
 # Raw dataset integrity reference
 
 `dataset_manifest.json` is the frozen inventory of the 100 Enterprise RAG
-Challenge Round 2 (`erc2`) PDFs in `documents/`. It is a standalone dataset
+Challenge Round 2 (`erc2`) PDFs in `reports/`. It is a standalone dataset
 prerequisite, independent of parsing, chunking, or other processing.
 
 Treat this file as immutable. Consumers must validate against it, never regenerate
@@ -18,7 +18,7 @@ The PDF bytes are not stored in this repository. They are the original
 Round 2 annual reports from the
 [Enterprise RAG Challenge](https://github.com/trustbit/enterprise-rag-challenge)
 repository, under `round2/pdfs/`. Obtain those files separately and place
-them in `documents/` using the exact filenames in this reference. This file
+them in `reports/` using the exact filenames in this reference. This file
 inventories that corpus; it does not redistribute it.
 
 ## Corpus fingerprint
