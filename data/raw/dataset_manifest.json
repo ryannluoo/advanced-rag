@@ -1,5 +1,5 @@
 {
-  "dataset_id": "erc2",
+  "dataset_id": "ERC2",
   "document_count": 100,
   "documents": [
     {
@@ -603,5 +603,5 @@
       "size_bytes": 1118460
     }
   ],
-  "corpus_fingerprint": "1cf9298a15a3fd4f8e669a4f815d55394b99d4d592d79be1ff2eef77332c63ee"
+  "corpus_fingerprint": "d8f0c9c6053849fc1406e9fae3538bc8aa1eeefad69f2838f4878e14da4cee2a"
 }

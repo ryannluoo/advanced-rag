@@ -1,7 +1,7 @@
 # Raw dataset integrity reference
 
 `dataset_manifest.json` is the frozen inventory of the 100 Enterprise RAG
-Challenge Round 2 (`erc2`) PDFs in `reports/`. It is a standalone dataset
+Challenge Round 2 (`ERC2`) PDFs in `reports/`. It is a standalone dataset
 prerequisite, independent of parsing, chunking, or other processing.
 
 Treat this file as immutable. Consumers must validate against it, never regenerate

@@ -197,8 +197,8 @@ def _assemble_tables(document: Any, data: dict[str, Any]) -> list[dict[str, Any]
                 "table_id": reference_index,
                 "page": provenance["page_no"],
                 "bbox": [box["l"], box["t"], box["r"], box["b"]],
-                "#-rows": source["data"]["num_rows"],
-                "#-cols": source["data"]["num_cols"],
+                "row_count": source["data"]["num_rows"],
+                "column_count": source["data"]["num_cols"],
                 "markdown": _table_markdown(table_json),
                 "html": table.export_to_html(doc=document, add_caption=False),
                 "json": table_json,
@@ -239,18 +239,19 @@ def _release_accelerator_memory() -> None:
         torch.cuda.empty_cache()
 
 
-def assemble_report(document: Any, data: dict[str, Any]) -> dict[str, Any]:
+def assemble_report(
+    document: Any, data: dict[str, Any], document_id: str
+) -> dict[str, Any]:
     """Create the project report in the baseline output contract."""
-    origin_stem = data["origin"]["filename"].rsplit(".", 1)[0]
     report = {
-        "metainfo": {
-            "sha1_name": origin_stem,
-            "pages_amount": len(data.get("pages", [])),
-            "text_blocks_amount": len(data.get("texts", [])),
-            "tables_amount": len(data.get("tables", [])),
-            "pictures_amount": len(data.get("pictures", [])),
-            "equations_amount": len(data.get("equations", [])),
-            "footnotes_amount": sum(
+        "metadata": {
+            "document_id": document_id,
+            "page_count": len(data.get("pages", [])),
+            "text_block_count": len(data.get("texts", [])),
+            "table_count": len(data.get("tables", [])),
+            "picture_count": len(data.get("pictures", [])),
+            "equation_count": len(data.get("equations", [])),
+            "footnote_count": sum(
                 item.get("label") == "footnote" for item in data.get("texts", [])
             ),
         },
@@ -436,8 +437,8 @@ def _chart_table(picture: dict[str, Any], table_id: int) -> dict[str, Any] | Non
         "table_id": table_id,
         "page": picture.get("page", 1),
         "bbox": box,
-        "#-rows": len(grid),
-        "#-cols": 2,
+        "row_count": len(grid),
+        "column_count": 2,
         "markdown": markdown,
         "html": html_table,
         "json": {
@@ -494,7 +495,7 @@ def _promote_charts(report: dict[str, Any]) -> None:
             else item
             for item in page["content"]
         ]
-    report["metainfo"]["tables_amount"] = len(tables)
+    report["metadata"]["table_count"] = len(tables)
 
 
 def _retrieval_texts(report: dict[str, Any]) -> Iterable[str]:
@@ -565,16 +566,15 @@ class FinancialReportParser:
                 LOGGER.error("Failed to convert %s", path)
                 _release_accelerator_memory()
                 continue
-            result = results[0]
-            data = result.document.export_to_dict()
-            report = assemble_report(result.document, data)
-            stem = result.input.file.stem
-            (self.output_dir / f"{stem}.json").write_text(
+            document = results[0].document
+            document_id = path.stem
+            report = assemble_report(document, document.export_to_dict(), document_id)
+            (self.output_dir / f"{document_id}.json").write_text(
                 json.dumps(report, indent=2, ensure_ascii=False),
                 encoding="utf-8",
                 newline="\n",
             )
-            (self.output_dir / f"{stem}.txt").write_text(
+            (self.output_dir / f"{document_id}.txt").write_text(
                 report_text(report), encoding="utf-8", newline="\n"
             )
             succeeded += 1

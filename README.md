@@ -26,7 +26,7 @@ Place the source PDFs in `data/raw/reports/`, then run:
 uv run --cache-dir .cache/uv --locked python -m financial_rag.parsing
 ```
 
-The parser writes one JSON report and one TXT retrieval document per PDF under `data/processed/reports/`. Explicit input files and path overrides are supported:
+The parser writes one JSON report and one TXT retrieval document per PDF under `data/processed/reports/`. A directory parse first checks `data/raw/dataset_manifest.json`, then writes `manifest.json` beside the report pairs only after every JSON/TXT pair matches that inventory. Explicit input files skip corpus publication:
 
 ```powershell
 uv run --cache-dir .cache/uv --locked python -m financial_rag.parsing report.pdf --output-dir data/processed/reports --threads 4

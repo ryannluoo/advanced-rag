@@ -50,7 +50,7 @@ def test_pipeline_matches_baseline_configuration(tmp_path: Path):
 
 def test_chart_series_becomes_retrieval_table():
     report = {
-        "metainfo": {"tables_amount": 0},
+        "metadata": {"table_count": 0},
         "content": [
             {"page": 1, "content": [{"type": "picture", "picture_id": 0}]}
         ],
@@ -75,8 +75,8 @@ def test_chart_series_becomes_retrieval_table():
     _promote_charts(report)
 
     assert report["content"][0]["content"] == [{"type": "table", "table_id": 0}]
-    assert report["metainfo"]["tables_amount"] == 1
-    assert report["tables"][0]["#-rows"] == 3
+    assert report["metadata"]["table_count"] == 1
+    assert report["tables"][0]["row_count"] == 3
     assert "| 2022 | $1,745,530 |" in report_text(report)
     assert "Total assets $0.8M" not in report["tables"][0]["markdown"]
 
@@ -102,7 +102,6 @@ class _FakeDocument:
 
     def export_to_dict(self):
         return {
-            "origin": {"filename": "sample.pdf"},
             "pages": {"1": {"size": {"width": 612, "height": 792}}},
             "body": {"children": [{"$ref": "#/texts/0"}]},
             "groups": [],
@@ -138,7 +137,6 @@ class _FakeConverter:
         return [
             SimpleNamespace(
                 status=ConversionStatus.SUCCESS,
-                input=SimpleNamespace(file=Path("sample.pdf")),
                 document=_FakeDocument(),
             )
         ]
@@ -149,6 +147,6 @@ def test_parser_writes_json_and_text(tmp_path: Path):
 
     assert parser.parse([Path("sample.pdf")]) == (1, 0)
     report = json.loads((tmp_path / "sample.json").read_text(encoding="utf-8"))
-    assert list(report) == ["metainfo", "content", "tables", "pictures"]
-    assert report["metainfo"]["sha1_name"] == "sample"
+    assert list(report) == ["metadata", "content", "tables", "pictures"]
+    assert report["metadata"]["document_id"] == "sample"
     assert (tmp_path / "sample.txt").read_text(encoding="utf-8") == "Readable text\n"

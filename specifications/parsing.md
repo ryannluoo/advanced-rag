@@ -2,13 +2,17 @@
 
 ## Scope
 
-The baseline converts financial-report PDFs into structured JSON and retrieval-ready text. Parsing ends at this boundary; chunking, indexing, retrieval, and generation are separate stages.
+The baseline parser converts financial-report PDFs into structured JSON and retrieval-ready text. Parsing ends at this boundary; chunking, indexing, retrieval, and generation are separate stages.
 
-This parser is adapted from the PDF parser in the [Enterprise RAG Challenge Round 2 winning submission](https://github.com/IlyaRice/RAG-Challenge-2) at commit `452d688d1e0d6c3dc5150f9e42c2facb477178b7`. The implementation, API names, module layout, configuration, and command-line interface are localized for this project. The winner report contract is retained so parsing behavior and downstream representation remain consistent.
+## Provenance
+
+The Docling pipeline configuration is adopted from the PDF parser in the [Enterprise RAG Challenge Round 2 winning submission](https://github.com/IlyaRice/RAG-Challenge-2) at commit `452d688d1e0d6c3dc5150f9e42c2facb477178b7`. The output contract derives its structure from that submission's report format and is defined by this project; field names follow this project's conventions where they differ.
+
+The baseline parser is not a reproduction of the submission's pipeline or results, and its configuration has not been tuned or compared against alternative parsers on this corpus. The implementation, API names, module layout, and command-line interface are specific to this project.
 
 ## Composition
 
-The sole baseline is `financial_rag.parsing.parser.FinancialReportParser`. It uses:
+The baseline parser is `financial_rag.parsing.parser.FinancialReportParser`. It uses:
 
 - Docling's maintained `DoclingParseDocumentBackend` and `StandardPdfPipeline`;
 - EasyOCR with English recognition and selective OCR;
@@ -21,22 +25,34 @@ The sole baseline is `financial_rag.parsing.parser.FinancialReportParser`. It us
 
 Parsing requires an NVIDIA GPU and a driver that supports CUDA 12.6. PyTorch does not publish CUDA wheels for macOS; that platform is not a supported parsing host.
 
-Built-in chart extraction is disabled. A deterministic postprocessor promotes a picture only when its text contains consecutive year labels and an equal number of unambiguous currency or percentage values.
+Built-in chart extraction is disabled. A deterministic postprocessor promotes a picture to a table only when its text contains consecutive year labels and an equal number of unambiguous currency or percentage values.
 
-The parser rejects retrieval output containing a material concentration of unresolved `/gid` identifiers. A rejected or failed conversion does not produce a successful result.
+The parser rejects output containing a material concentration of unresolved `/gid` identifiers. A rejected or failed conversion produces no output files.
 
 ## Output contract
 
-Each input PDF produces `<stem>.json` and `<stem>.txt` in `data/processed/reports` unless another output directory is selected.
+Each input PDF produces `<document_id>.json` and `<document_id>.txt` in `data/processed/reports` unless another output directory is selected.
+
+The document ID is the filename stem of the source PDF. In the ERC2 corpus it equals the `document_id` in `data/raw/dataset_manifest.json`, which is the SHA-1 of the PDF bytes, and it is the document identifier in benchmark page references (`<document_id>:<page>`). The parser takes the ID from the filename; it does not hash the PDF.
 
 The JSON object has four top-level members, in order:
 
-1. `metainfo`: source stem and document-level item counts;
+1. `metadata`: `document_id` and document-level item counts;
 2. `content`: page-grouped reading-order references to text, tables, and pictures;
 3. `tables`: page, bounds, dimensions, Markdown, HTML, and the Docling table object;
 4. `pictures`: page, bounds, and recognized child text.
 
 The text file walks `content` in order. Text items are emitted verbatim, table references are replaced with their Markdown tables, and picture references carry no retrieval text unless promoted to tables. UTF-8, LF newlines, two-space JSON indentation, and preserved Unicode make outputs deterministic for a fixed input, dependency lock, and model set.
+
+## Corpus publication
+
+Parsing an input directory, with no explicit PDF arguments, checks `data/raw/dataset_manifest.json` before the parser starts. The manifest `corpus_fingerprint` must match the canonical digest in `data/raw/README.md`. The PDF filenames in the input directory must be exactly the manifest inventory, and each file's SHA-1 must equal that document's `document_id` and `sha1`. A mismatch raises `ValidationError` and does not start conversion.
+
+After every report converts successfully, the parsed directory is checked before publication. Each source document must have exactly one `<document_id>.json` and one `<document_id>.txt`, with no other JSON or TXT report files. `metadata.document_id` must equal the source document id and both output stems. A mismatch raises `ValidationError` and does not write a publication manifest.
+
+On success the command writes `manifest.json` in the output directory, beside the report pairs. That file records the corpus (`document_count`, `page_count`), source (`manifest_path`, `corpus_fingerprint`), parser (`class_path`, `package_version` from `pyproject.toml`), and the SHA-256 of each JSON and TXT artifact. A directory parse removes any existing publication manifest before conversion, so the file exists only for the outputs that just passed validation.
+
+Explicit PDF arguments skip these corpus checks and do not write `manifest.json`.
 
 ## Dependencies
 
@@ -51,7 +67,7 @@ PyMuPDF is not a direct or transitive parser dependency.
 
 ## Operation
 
-Parsing requires an NVIDIA GPU. Install the environment and local models:
+Install the environment and local models:
 
 ```powershell
 uv sync --cache-dir .cache/uv --locked --group dev
@@ -70,4 +86,4 @@ Parse selected PDFs or override paths:
 uv run --cache-dir .cache/uv --locked python -m financial_rag.parsing report-a.pdf report-b.pdf --output-dir data/processed/reports
 ```
 
-The command exits nonzero when any conversion or output-quality check fails.
+The command exits nonzero when corpus validation, conversion, parsed-output validation, or an output-quality check fails.
