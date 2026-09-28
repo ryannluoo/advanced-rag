@@ -2,7 +2,7 @@
 
 ## Scope
 
-The baseline parser converts financial-report PDFs into structured JSON and retrieval-ready text. Parsing ends at this boundary; chunking, indexing, retrieval, and generation are separate stages.
+The baseline parser converts financial-report PDFs into structured JSON reports. Parsing ends at this boundary; chunking, indexing, retrieval, and generation are separate stages.
 
 ## Provenance
 
@@ -31,7 +31,7 @@ The parser rejects output containing a material concentration of unresolved `/gi
 
 ## Output contract
 
-Each input PDF produces `<document_id>.json` and `<document_id>.txt` in `data/processed/reports` unless another output directory is selected.
+Each input PDF produces `<document_id>.json` in `data/processed/reports` unless another output directory is selected.
 
 The document ID is the filename stem of the source PDF. In the ERC2 corpus it equals the `document_id` in `data/raw/dataset_manifest.json`, which is the SHA-1 of the PDF bytes, and it is the document identifier in benchmark page references (`<document_id>:<page>`). The parser takes the ID from the filename; it does not hash the PDF.
 
@@ -42,15 +42,15 @@ The JSON object has four top-level members, in order:
 3. `tables`: page, bounds, dimensions, Markdown, HTML, and the Docling table object;
 4. `pictures`: page, bounds, and recognized child text.
 
-The text file walks `content` in order. Text items are emitted verbatim, table references are replaced with their Markdown tables, and picture references carry no retrieval text unless promoted to tables. UTF-8, LF newlines, two-space JSON indentation, and preserved Unicode make outputs deterministic for a fixed input, dependency lock, and model set.
+UTF-8, LF newlines, two-space JSON indentation, and preserved Unicode make outputs deterministic for a fixed input, dependency lock, and model set.
 
 ## Corpus publication
 
 Parsing an input directory, with no explicit PDF arguments, checks `data/raw/dataset_manifest.json` before the parser starts. The manifest `corpus_fingerprint` must match the canonical digest in `data/raw/README.md`. The PDF filenames in the input directory must be exactly the manifest inventory, and each file's SHA-1 must equal that document's `document_id` and `sha1`. A mismatch raises `ValidationError` and does not start conversion.
 
-After every report converts successfully, the parsed directory is checked before publication. Each source document must have exactly one `<document_id>.json` and one `<document_id>.txt`, with no other JSON or TXT report files. `metadata.document_id` must equal the source document id and both output stems. A mismatch raises `ValidationError` and does not write a publication manifest.
+After every report converts successfully, the parsed directory is checked before publication. Each source document must have exactly one `<document_id>.json`, with no other JSON report files. `metadata.document_id` must equal the source document id and the output stem. A mismatch raises `ValidationError` and does not write a publication manifest.
 
-On success the command writes `manifest.json` in the output directory, beside the report pairs. That file records the corpus (`document_count`, `page_count`), source (`manifest_path`, `corpus_fingerprint`), parser (`class_path`, `package_version` from `pyproject.toml`), and the SHA-256 of each JSON and TXT artifact. A directory parse removes any existing publication manifest before conversion, so the file exists only for the outputs that just passed validation.
+On success the command writes `manifest.json` in the output directory, beside the reports. That file records the corpus (`document_count`, `page_count`), source (`manifest_path`, `corpus_fingerprint`), parser (`class_path`, `package_version` from `pyproject.toml`), and the SHA-256 of each JSON report. A directory parse removes any existing publication manifest before conversion, so the file exists only for the outputs that just passed validation.
 
 Explicit PDF arguments skip these corpus checks and do not write `manifest.json`.
 

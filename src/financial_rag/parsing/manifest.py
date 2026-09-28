@@ -43,7 +43,7 @@ def write_manifest(
     dataset_manifest: Path,
     corpus_fingerprint: str,
 ) -> Path:
-    """Write the publication manifest beside a validated set of report pairs.
+    """Write the publication manifest beside a validated set of parsed reports.
 
     Call this only after ``validate_parsed_corpus`` succeeds. The file's
     presence is the record that the parsed corpus passed that check.
@@ -57,19 +57,12 @@ def write_manifest(
         if isinstance(pages, bool) or not isinstance(pages, int) or pages < 0:
             raise ValueError(f"invalid page_count for {document_id}")
         page_count += pages
-        json_name = f"{document_id}.json"
-        txt_name = f"{document_id}.txt"
+        filename = f"{document_id}.json"
         integrity.append(
             {
                 "document_id": document_id,
-                "json": {
-                    "filename": json_name,
-                    "sha256": _sha256(output_dir / json_name),
-                },
-                "txt": {
-                    "filename": txt_name,
-                    "sha256": _sha256(output_dir / txt_name),
-                },
+                "filename": filename,
+                "sha256": _sha256(output_dir / filename),
             }
         )
 

@@ -11,7 +11,7 @@ from financial_rag.parsing.manifest import MANIFEST_FILENAME, write_manifest
 ROOT = Path(__file__).resolve().parents[1]
 PUBLISHED_MANIFEST = ROOT / "data" / "processed" / "reports" / "manifest.json"
 PUBLISHED_MANIFEST_SHA256 = (
-    "21f9a7d9b19f57a482082bdaf25ab5932b9671955a6995fb13a9031c2a68b0c0"
+    "6b3a9f5998fb29502cbbf0502f7ab10ff09e577daa0fccd2111a42f90e1bcb71"
 )
 PARSER_CLASS_PATH = "financial_rag.parsing.parser.FinancialReportParser"
 
@@ -31,9 +31,7 @@ def test_write_manifest_records_summary_provenance_and_hashes(tmp_path: Path):
     later = "b" * 40
     earlier = "a" * 40
     (output / f"{later}.json").write_bytes(b'{"metadata":{"page_count":4}}')
-    (output / f"{later}.txt").write_bytes(b"later\n")
     (output / f"{earlier}.json").write_bytes(b'{"metadata":{"page_count":10}}')
-    (output / f"{earlier}.txt").write_bytes(b"earlier\n")
     dataset_manifest = Path("data/raw/dataset_manifest.json")
     fingerprint = "d8f0c9c6053849fc1406e9fae3538bc8aa1eeefad69f2838f4878e14da4cee2a"
 
@@ -67,10 +65,8 @@ def test_write_manifest_records_summary_provenance_and_hashes(tmp_path: Path):
         later,
     ]
     for item in published["artifacts"]:
-        assert item["json"]["sha256"] == _sha256(output / item["json"]["filename"])
-        assert item["txt"]["sha256"] == _sha256(output / item["txt"]["filename"])
-        assert item["json"]["filename"] == f"{item['document_id']}.json"
-        assert item["txt"]["filename"] == f"{item['document_id']}.txt"
+        assert item["filename"] == f"{item['document_id']}.json"
+        assert item["sha256"] == _sha256(output / item["filename"])
 
 
 @pytest.mark.skipif(

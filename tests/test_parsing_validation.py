@@ -63,13 +63,12 @@ def _write_dataset(
     return reports, manifest_path, manifest
 
 
-def _write_pair(output_dir: Path, document_id: str, page_count: int) -> None:
+def _write_report(output_dir: Path, document_id: str, page_count: int) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     report = {"metadata": {"document_id": document_id, "page_count": page_count}}
     (output_dir / f"{document_id}.json").write_text(
         json.dumps(report), encoding="utf-8"
     )
-    (output_dir / f"{document_id}.txt").write_text("body\n", encoding="utf-8")
 
 
 def test_corpus_fingerprint_matches_canonical_digest():
@@ -176,14 +175,14 @@ def test_published_parsed_corpus_matches_dataset_inventory():
     assert sum(item["page_count"] for item in verified) == 14454
 
 
-def test_parsed_corpus_requires_one_pair_and_matching_document_id(tmp_path: Path):
+def test_parsed_corpus_requires_one_report_and_matching_document_id(tmp_path: Path):
     content = b"x"
     document = _document(content)
     reports, _, manifest = _write_dataset(
         tmp_path, [document], {document["filename"]: content}
     )
     output = tmp_path / "parsed"
-    _write_pair(output, document["document_id"], 4)
+    _write_report(output, document["document_id"], 4)
     (output / "notes.md").write_text("ignore", encoding="utf-8")
     (output / MANIFEST_FILENAME).write_text("{}\n", encoding="utf-8")
 
@@ -199,12 +198,12 @@ def test_parsed_corpus_requires_one_pair_and_matching_document_id(tmp_path: Path
     assert validate_parsed_corpus(reports, output, manifest) == verified
 
     (output / "extra.json").write_text("{}", encoding="utf-8")
-    (output / f"{document['document_id']}.txt").unlink()
-    with pytest.raises(ValidationError, match="missing parsed txt") as error:
+    (output / f"{document['document_id']}.json").unlink()
+    with pytest.raises(ValidationError, match="missing parsed json") as error:
         validate_parsed_corpus(reports, output, manifest)
     assert "unexpected json: extra.json" in str(error.value)
 
-    _write_pair(output, document["document_id"], 4)
+    _write_report(output, document["document_id"], 4)
     (output / "extra.json").unlink()
     report = {"metadata": {"document_id": "other", "page_count": 4}}
     (output / f"{document['document_id']}.json").write_text(
@@ -244,7 +243,7 @@ def test_directory_parse_publishes_manifest_only_after_validation(
 
         def parse(self, paths):
             for path in paths:
-                _write_pair(self.output_dir, Path(path).stem, 6)
+                _write_report(self.output_dir, Path(path).stem, 6)
             return (len(list(paths)), 0)
 
     assert _run_main(
@@ -273,7 +272,7 @@ def test_directory_parse_publishes_manifest_only_after_validation(
         def parse(self, paths):
             for path in paths:
                 document_id = Path(path).stem
-                _write_pair(self.output_dir, document_id, 6)
+                _write_report(self.output_dir, document_id, 6)
                 report = {"metadata": {"document_id": "other", "page_count": 6}}
                 (self.output_dir / f"{document_id}.json").write_text(
                     json.dumps(report), encoding="utf-8"

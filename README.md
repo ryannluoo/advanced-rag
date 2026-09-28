@@ -4,7 +4,7 @@ A compact financial-report RAG engineering project built on the 100 annual repor
 
 ## Status
 
-The PDF parsing baseline is implemented. It produces structured JSON and retrieval text with OCR, layout-aware reading order, native table extraction, and conservative year/value chart recovery. Chunking, embeddings, indexing, retrieval, and generation remain outside this phase.
+The PDF parsing baseline is implemented. It produces structured JSON with OCR, layout-aware reading order, native table extraction, and conservative year/value chart recovery. Chunking, embeddings, indexing, retrieval, and generation remain outside this phase.
 
 ## Setup
 
@@ -26,7 +26,7 @@ Place the source PDFs in `data/raw/reports/`, then run:
 uv run --cache-dir .cache/uv --locked python -m financial_rag.parsing
 ```
 
-The parser writes one JSON report and one TXT retrieval document per PDF under `data/processed/reports/`. A directory parse first checks `data/raw/dataset_manifest.json`, then writes `manifest.json` beside the report pairs only after every JSON/TXT pair matches that inventory. Explicit input files skip corpus publication:
+The parser writes one JSON report per PDF under `data/processed/reports/`. A directory parse first checks `data/raw/dataset_manifest.json`, then writes `manifest.json` beside the reports only after every JSON report matches that inventory. Explicit input files skip corpus publication:
 
 ```powershell
 uv run --cache-dir .cache/uv --locked python -m financial_rag.parsing report.pdf --output-dir data/processed/reports --threads 4

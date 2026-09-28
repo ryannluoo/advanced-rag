@@ -33,7 +33,7 @@ def _parse(args: argparse.Namespace, pdfs: list[Path]) -> tuple[int, int]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Parse financial-report PDFs into JSON and retrieval text."
+        description="Parse financial-report PDFs into JSON reports."
     )
     parser.add_argument("pdfs", nargs="*", type=Path)
     parser.add_argument("--input-dir", type=Path, default=DEFAULT_INPUT_DIR)

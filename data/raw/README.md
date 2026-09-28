@@ -36,3 +36,20 @@ inventories that corpus; it does not redistribute it.
 The fingerprint is independent of the manifest file's indentation and line
 endings. It covers dataset identity, inventory membership, filenames, content
 hashes, and byte sizes.
+
+## Document catalog
+
+`document_catalog.json` maps each `document_id` to its `company_name`. It is
+the only document metadata available to the pipeline besides the PDFs, and it
+is immutable like the manifest. Its keys must equal the manifest's
+`document_id` values, and company names must be unique because questions are
+routed to reports by company name.
+
+It is derived from `round2/subset.csv` in the ERC2 repository at commit
+[`1e348aa`](https://github.com/trustbit/enterprise-rag-challenge/blob/1e348aa6cf43d9d48ae4b0a5b1faf589a8a67591/round2/subset.csv):
+`sha1` becomes the key and `company_name` the value. All other columns are
+omitted. The yes/no flags are question-generation inputs rather than facts
+about the reports: the flag matching each of the 16 development yes/no
+questions is true, while 6 of those gold answers are false. `cur` and `major_industry` are wrong for
+several well-known companies. A local copy of the source file may be kept as
+`subset.csv`; it is Git-ignored.

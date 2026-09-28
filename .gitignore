@@ -8,6 +8,7 @@ __pycache__/
 .cache/
 
 data/raw/reports/
+data/raw/subset.csv
 data/processed/
 data/indexes/
 data/models/

@@ -190,17 +190,16 @@ def validate_parsed_corpus(
     output_dir: Path,
     manifest: Mapping[str, Any],
 ) -> list[dict[str, Any]]:
-    """Abort unless each source PDF has one matching JSON report and one TXT file.
+    """Abort unless each source PDF has one matching JSON report.
 
-    ``metadata.document_id`` must equal the source document id and both output
-    filenames. ``manifest.json`` is the publication file, not a parsed report.
+    ``metadata.document_id`` must equal the source document id and the output
+    filename. ``manifest.json`` is the publication file, not a parsed report.
     """
     reports_dir = Path(reports_dir)
     output_dir = Path(output_dir)
     documents = list(manifest["documents"])
     problems: list[str] = []
     expected_json: set[str] = set()
-    expected_txt: set[str] = set()
     verified: list[dict[str, Any]] = []
 
     for document in documents:
@@ -209,10 +208,7 @@ def validate_parsed_corpus(
         source = reports_dir / filename
         if not source.is_file() or source.stem != document_id:
             problems.append(f"source document mismatch: {filename}")
-        json_name = f"{document_id}.json"
-        txt_name = f"{document_id}.txt"
-        expected_json.add(json_name)
-        expected_txt.add(txt_name)
+        expected_json.add(f"{document_id}.json")
 
     if not output_dir.is_dir():
         raise ValidationError(f"parsed report directory not found: {output_dir}")
@@ -222,23 +218,12 @@ def validate_parsed_corpus(
         for path in output_dir.iterdir()
         if path.is_file() and path.suffix == ".json" and path.name != MANIFEST_FILENAME
     }
-    actual_txt = {
-        path.name
-        for path in output_dir.iterdir()
-        if path.is_file() and path.suffix == ".txt"
-    }
     missing_json = sorted(expected_json - actual_json)
-    missing_txt = sorted(expected_txt - actual_txt)
     unexpected_json = sorted(actual_json - expected_json)
-    unexpected_txt = sorted(actual_txt - expected_txt)
     if missing_json:
         problems.append("missing parsed json: " + ", ".join(missing_json))
-    if missing_txt:
-        problems.append("missing parsed txt: " + ", ".join(missing_txt))
     if unexpected_json:
         problems.append("unexpected json: " + ", ".join(unexpected_json))
-    if unexpected_txt:
-        problems.append("unexpected txt: " + ", ".join(unexpected_txt))
 
     for json_name in sorted(expected_json & actual_json):
         json_path = output_dir / json_name

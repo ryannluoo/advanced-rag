@@ -16,7 +16,6 @@ from financial_rag.parsing.parser import (
     _validate_text_quality,
     build_converter,
     build_pipeline_options,
-    report_text,
 )
 
 
@@ -77,7 +76,7 @@ def test_chart_series_becomes_retrieval_table():
     assert report["content"][0]["content"] == [{"type": "table", "table_id": 0}]
     assert report["metadata"]["table_count"] == 1
     assert report["tables"][0]["row_count"] == 3
-    assert "| 2022 | $1,745,530 |" in report_text(report)
+    assert "| 2022 | $1,745,530 |" in report["tables"][0]["markdown"]
     assert "Total assets $0.8M" not in report["tables"][0]["markdown"]
 
 
@@ -142,11 +141,11 @@ class _FakeConverter:
         ]
 
 
-def test_parser_writes_json_and_text(tmp_path: Path):
+def test_parser_writes_only_json_report(tmp_path: Path):
     parser = FinancialReportParser(output_dir=tmp_path, converter=_FakeConverter())
 
     assert parser.parse([Path("sample.pdf")]) == (1, 0)
+    assert [path.name for path in tmp_path.iterdir()] == ["sample.json"]
     report = json.loads((tmp_path / "sample.json").read_text(encoding="utf-8"))
     assert list(report) == ["metadata", "content", "tables", "pictures"]
     assert report["metadata"]["document_id"] == "sample"
-    assert (tmp_path / "sample.txt").read_text(encoding="utf-8") == "Readable text\n"

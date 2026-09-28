@@ -520,21 +520,8 @@ def _validate_text_quality(report: dict[str, Any]) -> None:
         )
 
 
-def report_text(report: dict[str, Any]) -> str:
-    """Render retrieval text in report reading order, including accepted tables."""
-    tables = {table["table_id"]: table for table in report.get("tables", [])}
-    lines: list[str] = []
-    for page in report.get("content", []):
-        for item in page.get("content", []):
-            if item.get("type") == "table":
-                lines.extend(["", tables[item["table_id"]]["markdown"], ""])
-            elif isinstance(item.get("text"), str) and item["text"]:
-                lines.append(item["text"])
-    return "\n".join(lines).strip() + "\n"
-
-
 class FinancialReportParser:
-    """Parse financial PDFs into deterministic JSON and retrieval text reports."""
+    """Parse financial PDFs into deterministic JSON reports."""
 
     def __init__(
         self,
@@ -573,9 +560,6 @@ class FinancialReportParser:
                 json.dumps(report, indent=2, ensure_ascii=False),
                 encoding="utf-8",
                 newline="\n",
-            )
-            (self.output_dir / f"{document_id}.txt").write_text(
-                report_text(report), encoding="utf-8", newline="\n"
             )
             succeeded += 1
             _release_accelerator_memory()
