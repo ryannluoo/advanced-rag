@@ -2,7 +2,7 @@
 
 ## Scope
 
-The baseline parser converts financial-report PDFs into structured JSON reports. Parsing ends at this boundary; chunking, indexing, retrieval, and generation are separate stages.
+The baseline parser converts financial-report PDFs into structured JSON reports. Parsing ends at this boundary; rendering, chunking, indexing, retrieval, and generation are separate stages.
 
 ## Provenance
 
@@ -31,7 +31,7 @@ The parser rejects output containing a material concentration of unresolved `/gi
 
 ## Output contract
 
-Each input PDF produces `<document_id>.json` in `data/processed/reports` unless another output directory is selected.
+Each input PDF produces `<document_id>.json` in `data/processed/parsed_reports` unless another output directory is selected.
 
 The document ID is the filename stem of the source PDF. In the ERC2 corpus it equals the `document_id` in `data/raw/dataset_manifest.json`, which is the SHA-1 of the PDF bytes, and it is the document identifier in benchmark page references (`<document_id>:<page>`). The parser takes the ID from the filename; it does not hash the PDF.
 
@@ -83,7 +83,7 @@ uv run --cache-dir .cache/uv --locked python -m financial_rag.parsing
 Parse selected PDFs or override paths:
 
 ```powershell
-uv run --cache-dir .cache/uv --locked python -m financial_rag.parsing report-a.pdf report-b.pdf --output-dir data/processed/reports
+uv run --cache-dir .cache/uv --locked python -m financial_rag.parsing report-a.pdf report-b.pdf --output-dir data/processed/parsed_reports
 ```
 
 The command exits nonzero when corpus validation, conversion, parsed-output validation, or an output-quality check fails.

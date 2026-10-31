@@ -27,7 +27,7 @@ from tabulate import tabulate
 
 LOGGER = logging.getLogger(__name__)
 DEFAULT_INPUT_DIR = Path("data/raw/reports")
-DEFAULT_OUTPUT_DIR = Path("data/processed/reports")
+DEFAULT_OUTPUT_DIR = Path("data/processed/parsed_reports")
 DEFAULT_ARTIFACTS_DIR = Path("data/models/docling")
 DEFAULT_ACCELERATOR_DEVICE = AcceleratorDevice.CUDA
 GLYPH_IDENTIFIER = re.compile(r"/gid\d+")

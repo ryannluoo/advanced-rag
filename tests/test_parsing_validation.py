@@ -156,7 +156,7 @@ def test_source_corpus_rejects_document_id_disagreements(tmp_path: Path):
 
 
 def test_published_parsed_corpus_matches_dataset_inventory():
-    published_manifest = ROOT / "data" / "processed" / "reports" / "manifest.json"
+    published_manifest = ROOT / "data" / "processed" / "parsed_reports" / "manifest.json"
     if not published_manifest.is_file():
         pytest.skip("parsed corpus manifest is not published")
     source = json.loads(

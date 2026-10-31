@@ -9,7 +9,7 @@ from financial_rag.parsing.manifest import MANIFEST_FILENAME, write_manifest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PUBLISHED_MANIFEST = ROOT / "data" / "processed" / "reports" / "manifest.json"
+PUBLISHED_MANIFEST = ROOT / "data" / "processed" / "parsed_reports" / "manifest.json"
 PUBLISHED_MANIFEST_SHA256 = (
     "6b3a9f5998fb29502cbbf0502f7ab10ff09e577daa0fccd2111a42f90e1bcb71"
 )
