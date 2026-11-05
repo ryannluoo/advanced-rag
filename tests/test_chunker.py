@@ -116,13 +116,23 @@ def test_cli_writes_one_jsonl_per_report(chunker, monkeypatch, tmp_path):
         "chunking", "--input-dir", str(source), "--output-dir", str(output),
     ])
     assert cli.main() == 0
-    assert sorted(path.name for path in output.iterdir()) == ["alpha.jsonl", "empty.jsonl"]
-    raw = (output / "alpha.jsonl").read_bytes()
+    variant = output / "size-384-overlap-64"
+    assert sorted(path.name for path in output.iterdir()) == ["size-384-overlap-64"]
+    assert sorted(path.name for path in variant.iterdir()) == ["alpha.jsonl", "empty.jsonl"]
+    raw = (variant / "alpha.jsonl").read_bytes()
     assert raw.endswith(b"\n") and b"\r" not in raw
     records = [json.loads(line) for line in raw.decode("utf-8").splitlines()]
     assert records[0]["text"] == "Café revenue.\n\nSecond paragraph."
     assert set(records[0]) == {"metadata", "text"}
-    assert (output / "empty.jsonl").read_bytes() == b""
+    assert (variant / "empty.jsonl").read_bytes() == b""
+
+    monkeypatch.setattr(sys, "argv", [
+        "chunking", "--input-dir", str(source), "--output-dir", str(output),
+        "--chunk-size", "64", "--chunk-overlap", "8",
+    ])
+    assert cli.main() == 0
+    assert (output / "size-64-overlap-8" / "alpha.jsonl").is_file()
+    assert (variant / "alpha.jsonl").is_file()
 
 
 def test_cli_missing_input_returns_failure(monkeypatch, tmp_path):

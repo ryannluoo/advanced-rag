@@ -41,7 +41,8 @@ def main() -> int:
             raise ValueError("No rendered reports found")
 
         chunker = RecursiveTokenChunker(config)
-        args.output_dir.mkdir(parents=True, exist_ok=True)
+        output_dir = config.output_directory(args.output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
         chunk_count = 0
         for path in paths:
             report = json.loads(path.read_text(encoding="utf-8"))
@@ -49,7 +50,7 @@ def main() -> int:
             if document_id != path.stem:
                 raise ValueError(f"{path}: document_id must match the filename stem")
             chunks = chunker.chunk_report(report)
-            output_path = args.output_dir / f"{document_id}.jsonl"
+            output_path = output_dir / f"{document_id}.jsonl"
             with output_path.open("w", encoding="utf-8", newline="\n") as output:
                 for chunk in chunks:
                     output.write(json.dumps(chunk, ensure_ascii=False) + "\n")
@@ -59,7 +60,7 @@ def main() -> int:
         logging.error("%s", error)
         return 1
 
-    print(f"Wrote {chunk_count} chunks from {len(paths)} report(s) into {args.output_dir}")
+    print(f"Wrote {chunk_count} chunks from {len(paths)} report(s) into {output_dir}")
     return 0
 
 

@@ -48,18 +48,18 @@ The renderer reads `data/processed/parsed_reports/` and writes `data/processed/r
 uv run --cache-dir .cache/uv --locked python -m financial_rag.chunking
 ```
 
-The chunker reads `data/processed/rendered_reports/*.json` and writes one `data/processed/chunks/<document_id>.jsonl` per report. Each line contains `metadata` and `text`. Metadata records the chunk ID, document ID, original PDF page, page-local chunk index, token count, and character offsets into the rendered page text.
+The chunker reads `data/processed/rendered_reports/*.json` and writes one `data/processed/chunks/size-<chunk_size>-overlap-<chunk_overlap>/<document_id>.jsonl` per report. Each line contains `metadata` and `text`. Metadata records the chunk ID, document ID, original PDF page, page-local chunk index, token count, and character offsets into the rendered page text.
 
 The baseline uses recursive splitting with the `Qwen/Qwen3-Embedding-0.6B` tokenizer, a chunk size of 384 tokens, and an overlap target of 64 tokens. Each page is split independently; chunks and overlap never cross page boundaries. Only the tokenizer is loaded, so chunking does not require a GPU or embedding-model weights. The tokenizer must be cached locally or downloadable from Hugging Face on first use.
 
 Process selected reports or override the defaults:
 
 ```powershell
-uv run --cache-dir .cache/uv --locked python -m financial_rag.chunking data/processed/rendered_reports/<document_id>.json --output-dir data/processed/chunks
+uv run --cache-dir .cache/uv --locked python -m financial_rag.chunking data/processed/rendered_reports/<document_id>.json
 uv run --cache-dir .cache/uv --locked python -m financial_rag.chunking --chunk-size 512 --chunk-overlap 64
 ```
 
-The default corpus run produced 53,330 chunks across 100 JSONL files. Generated files remain local and Git-ignored. This stage does not publish a manifest or perform corpus-level validation. See the [chunking specification](specifications/chunking.md) for the schema, splitting behavior, and CLI contract.
+The second command writes `data/processed/chunks/size-512-overlap-64/`. The default corpus run produced 53,330 chunks across 100 JSONL files in `data/processed/chunks/size-384-overlap-64/`. Generated files remain local and Git-ignored. This stage does not publish a manifest or perform corpus-level validation. See the [chunking specification](specifications/chunking.md) for the schema, splitting behavior, and CLI contract.
 
 ## Evaluation
 
