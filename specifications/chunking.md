@@ -2,7 +2,7 @@
 
 ## Scope
 
-Chunking converts rendered financial-report pages into overlapping text chunks for subsequent embedding and retrieval. Rendering produces the input. Embedding, indexing, retrieval, and generation are separate stages.
+Chunking converts rendered financial-report pages into overlapping text chunks. Rendering produces the input. The [embedding stage](embedding.md) consumes the output JSONL files in record order.
 
 The baseline is `financial_rag.chunking.chunker.RecursiveTokenChunker`, configured with `ChunkingConfig`. It does not publish a manifest or perform corpus-level inventory or integrity validation.
 

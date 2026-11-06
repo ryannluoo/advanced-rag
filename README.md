@@ -4,7 +4,7 @@ A compact financial-report RAG engineering project built on the 100 annual repor
 
 ## Status
 
-The PDF parsing baseline, page renderer, and token-based chunker are implemented. Parsing produces structured JSON with OCR, layout-aware reading order, native table extraction, and conservative year/value chart recovery. Rendering turns each parsed report into markdown page text. Chunking splits each page into overlapping text chunks with source offsets and citation metadata. Embeddings, indexing, retrieval, and generation remain outside this phase.
+The PDF parsing baseline, page renderer, token-based chunker, and embedding stage are implemented. Parsing produces structured JSON with OCR, layout-aware reading order, native table extraction, and conservative year/value chart recovery. Rendering turns each parsed report into markdown page text. Chunking splits each page into overlapping text chunks with source offsets and citation metadata. Embedding converts those chunks into dense vectors. Indexing, retrieval, and generation are pending.
 
 ## Setup
 
@@ -60,6 +60,18 @@ uv run --cache-dir .cache/uv --locked python -m financial_rag.chunking --chunk-s
 ```
 
 The second command writes `data/processed/chunks/size-512-overlap-64/`. The default corpus run produced 53,330 chunks across 100 JSONL files in `data/processed/chunks/size-384-overlap-64/`. Generated files remain local and Git-ignored. This stage does not publish a manifest or perform corpus-level validation. See the [chunking specification](specifications/chunking.md) for the schema, splitting behavior, and CLI contract.
+
+## Embedding
+
+```powershell
+uv run --cache-dir .cache/uv --locked python -m financial_rag.embedding --device cuda --model-dtype float16
+```
+
+The default model is `Qwen/Qwen3-Embedding-0.6B`. Its weights and tokenizer must be cached locally or downloadable from Hugging Face. The command above uses CUDA and float16 inference. Use `--device cpu --model-dtype float32` for CPU inference.
+
+By default, the command reads `data/processed/chunks/size-384-overlap-64/` and writes one `<document_id>.npy` per report under `data/processed/embeddings/qwen3-embedding-0.6b/size-384-overlap-64/`. Each matrix stores normalized float32 vectors in source JSONL record order. Use `--input-dir` to select a different chunk directory.
+
+The baseline run produced 53,330 vectors of 1,024 dimensions across 100 reports. The command publishes `manifest.json` after validating the selected run. The manifest records the model revision, vector settings, source hashes, output inventory, and embedding runtime. The source JSONL files retain the chunk text and citation metadata. See the [embedding specification](specifications/embedding.md) for the CLI, artifact schema, and validation rules.
 
 ## Evaluation
 

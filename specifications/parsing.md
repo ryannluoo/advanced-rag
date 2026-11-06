@@ -2,7 +2,7 @@
 
 ## Scope
 
-The baseline parser converts financial-report PDFs into structured JSON reports. Parsing ends at this boundary; rendering, chunking, indexing, retrieval, and generation are separate stages.
+The baseline parser converts financial-report PDFs into structured JSON reports. Rendering, chunking, embedding, indexing, retrieval, and generation are separate stages.
 
 ## Provenance
 
